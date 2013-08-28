@@ -1,13 +1,13 @@
 var express = require('express'),
-	app = express(),
 	path = require('path'),
 	omx = require('omxcontrol'),
-	films = require('./js/films');
-	dirlist = require('./js/dirlist');
+	db = require('./js/db'),
 	server = require('http').createServer(app),
+	imdb = require('imdb-api'),
 	io = require('socket.io').listen(server);
 
 var PORT = 3000;
+var app = express();
 
 app.configure(function () {
     app.set('port', process.env.PORT || 3000);
@@ -16,10 +16,11 @@ app.configure(function () {
     app.use(express.static(path.join(__dirname, 'public')));
 });
 
+db.dirlist();
+
 server.listen(app.get('port'));
 
 console.log('Server listening on port ', app.get('port'));
-
 
 io.sockets.on('connection', function(socket){
 
@@ -31,5 +32,4 @@ io.sockets.on('connection', function(socket){
 	socket.on('stop', function(data) {
 		omx.quit();
 	});
-	
 });
