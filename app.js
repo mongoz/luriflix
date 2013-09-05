@@ -1,13 +1,10 @@
 var express = require('express'),
+	app = express(),
 	path = require('path'),
+	http = require('http'),
 	omx = require('omxcontrol'),
 	db = require('./js/db'),
-	server = require('http').createServer(app),
-	imdb = require('imdb-api'),
-	io = require('socket.io').listen(server);
-
-var PORT = 3000;
-var app = express();
+	imdb = require('./js/imdb');
 
 app.configure(function () {
     app.set('port', process.env.PORT || 3000);
@@ -16,20 +13,15 @@ app.configure(function () {
     app.use(express.static(path.join(__dirname, 'public')));
 });
 
-db.dirlist();
+app.get('/films', db.findAll);
+app.get('/films/:id', db.findById);
+app.get('/delete', db.delAll);
+app.get('/save', function(req, res) {
+	imdb.movieList('./movie', function(err, film) { 
+		db.saveToDB(film);
+	})
+});
 
-server.listen(app.get('port'));
-
-console.log('Server listening on port ', app.get('port'));
-
-io.sockets.on('connection', function(socket){
-
-	socket.on('send message', function(data){
-		io.sockets.emit('new message', data);
-		omx.start('./movie/how.mp4');
-	});
-	
-	socket.on('stop', function(data) {
-		omx.quit();
-	});
+http.createServer(app).listen(app.get('port'), function () {
+    console.log("Express server listening on port " + app.get('port'));
 });
