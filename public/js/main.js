@@ -5,6 +5,7 @@ var AppRouter = Backbone.Router.extend({
         "movies" : "list",
         "movies/page/:page"	: "list",
         "movie/:id"         : "movieDetails",
+        "edit/:id"          : "edit",
         "about"             : "about"
     },
 
@@ -38,6 +39,14 @@ var AppRouter = Backbone.Router.extend({
         this.headerView.selectMenuItem();
     },
 
+    edit: function(id) {
+            var movie = new Movie({_id: id});
+             movie.fetch({success: function(){
+            $("#content").html(new EditMovieView({model: movie}).el);
+        }});
+        this.headerView.selectMenuItem();
+    },
+
     about: function () {
         if (!this.aboutView) {
             this.aboutView = new AboutView();
@@ -48,7 +57,7 @@ var AppRouter = Backbone.Router.extend({
 
 });
 
-utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView'], function() {
+utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView', 'EditMovieView'], function() {
     app = new AppRouter();
     Backbone.history.start();
 });

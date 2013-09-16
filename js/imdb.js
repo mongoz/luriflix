@@ -6,9 +6,17 @@ var IMAGE_PATH = './public/pics/';
 var MOVIE_PATH = process.env.HOME + '/movies';
 var SERIES_PATH = process.env.HOME + '/series';
 
+function downloadImage(data) {
+    try {
+        request(data.Poster).pipe(fs.createWriteStream(IMAGE_PATH + data.imdbID + '.png'));
+        } catch(err) {
+        console.log(err);
+    }
+};
+
 function imdbData(film, loc, callback) {
 	request('http://omdbapi.com/?t=' + film, function (error, response, body) {
-	   if (!error && response.statusCode == 200) {
+	    if (!error && response.statusCode == 200) {
 	      var parsed = JSON.parse(body);
 
             if(parsed.Error) {
@@ -20,11 +28,7 @@ function imdbData(film, loc, callback) {
                         } else {
                             request('http://omdbapi.com/?i=' + parse.Search[0].imdbID, function(error, response,body) {
                                 var data = JSON.parse(body);
-                                try {
-                                     request(data.Poster).pipe(fs.createWriteStream(IMAGE_PATH + parsed.imdbID + '.png'));
-                                    }catch(err) {
-                                        console.log(err);
-                                }
+                                downloadImage(data);
                                 callback(null, data, loc);
                             });
                      }
@@ -33,15 +37,10 @@ function imdbData(film, loc, callback) {
                     }
                 });
             } else {
-            try {
-    		       request(parsed.Poster).pipe(fs.createWriteStream(IMAGE_PATH + parsed.imdbID + '.png'));
-                } catch(err) {
-                    console.log(err);
-            }
+                downloadImage(parsed);
 		        callback(null, parsed, loc);
             }
-	   }
-	  else {
+	    } else {
 		callback(error);
 	  }
 	});
@@ -65,15 +64,13 @@ function readDir(start, callback) {
                         found.files[processed] = data.files;
                         if(++processed == total) { 
                             
-	                         for (var i = 0; i < found.dirs.length; i++) {
-
+	                        for (var i = 0; i < found.dirs.length; i++) {
 	                          	found.name[i] = found.dirs[i].replace(/\.[^\.]*(?:hdtv|x264)[^\.]*/ig,"").replace(/\.[^\.]*$/,"").replace(/\./g," ").replace(/^(.*[\\\/])/, "");
-
 	                           	imdbData(found.name[i],found.files[i], function(err, film, loc)  {
 	                          		film.loc = loc;
 	                           		callback(null, film);
-								 });                                  
-	                          }   
+								});                                  
+	                        }   
                         }
                     });
                 } else {
@@ -91,9 +88,7 @@ function readDir(start, callback) {
                 if(total == 0)
                 {
                     callback(null, found);
-                }
-                else
-                {
+                } else {
                     for(var x = 0, l = files.length; x < l; x++) {
                         isDir(path.join(start, files[x]));
                     }
@@ -106,3 +101,4 @@ function readDir(start, callback) {
 };
  
 exports.readDir = readDir;
+exports.downloadImage = downloadImage;

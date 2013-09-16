@@ -95,7 +95,6 @@
                         <p><img id="picture" width="180" src="<%= Poster === 'N/A' ? 'pics/generic.png' : 'pics/' + imdbID + '.png' %>"/></p>
                     </div>
                 </div>
-
             </div>
 
         </fieldset>
@@ -104,6 +103,7 @@
             <button type="button" class="btn btn-primary start">Watch</button>
             <button type="button" class="btn pause">Pause</button>
             <button type="button" class="btn stop">Stop</button>
+            <a href="#edit/<%= _id %>" class="btn pull-right">Edit</a>
         </div>
 
     </form>

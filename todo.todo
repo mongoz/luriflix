@@ -1,0 +1,9 @@
+Client
+	- Search
+	- Genre
+	- Update movie list
+
+
+Server
+	- Start omxplayer process.
+	- Series

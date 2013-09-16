@@ -1,6 +1,7 @@
-var nano = require('nano')('http://username:password@localhost:5984');
-var db_name = 'videos';
-var db = nano.use(db_name);
+var nano = require('nano')('http://username:password@localhost:5984'),
+	db_name = 'videos',
+	db = nano.use(db_name),
+	request = require('request');
 
 exports.findAll = function(req, res) {
 	db.view('videos', 'films', function(err, body) {
@@ -32,18 +33,31 @@ exports.saveToDB = function (data) {
 exports.updateMovie = function(req, res) {
 	var id = req.params.id;
 	var data = req.body;
+	var info;
+
+	if(data.json) {
+		info = JSON.parse(data.json);
+		info.loc = data.loc;
+
+		try {
+        	request(info.Poster).pipe(fs.createWriteStream(IMAGE_PATH + info.imdbID + '.png'));
+        } catch(err) {
+       	 	console.log(err);
+    	}
+	} else {
+		info = data;
+	}
+
 	console.log('Updating Movie: ' + id);
-    console.log(JSON.stringify(data));
 
 	db.get(id, function (error, existing) {	 	
-	  	if(!error) data._rev = existing._rev;
-	  	
-		  	db.insert(data, id, function(err, body) {
+	  	if(!error) info._rev = existing._rev;	  	
+		  	db.insert(info, id, function(err, body) {
 		  		if(err) {
 		  			res.send("error: "+ err);
 		  		}  else {
-	               res.send(data);
-	           }
+	               res.send(info);
+	            }
 		  	});
 	});
 }
