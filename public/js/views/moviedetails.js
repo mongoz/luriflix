@@ -5,7 +5,14 @@ window.MovieView = Backbone.View.extend({
     },
 
     render: function () {
-        $(this.el).html(this.template(this.model.toJSON()));
+
+        data = _.clone(this.model.attributes); 
+
+        $(this.el).html(this.template(data));
+
+        if(data.Type == "series") {
+               $(this.el).append(new EpisodeView({model: this.model, el: this.$('.episodes')}).render());
+        }
         return this;
     },
 

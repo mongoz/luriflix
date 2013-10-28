@@ -4,7 +4,10 @@ var express = require('express'),
 	db = require('./js/db'),
 	imdb = require('./js/imdb'),
 	http = require('http'),
-	io = require('socket.io');
+	io = require('socket.io'),
+	s = require('./js/sort'),
+	u = require('underscore'),
+	walker = require('./js/walker');
 
 var app = express();
 	
@@ -43,9 +46,38 @@ app.get('/delete', db.delAll);
 app.put('/movie/:id', db.updateMovie);
 app.delete('/movie/:id', db.deleteMovie);
 app.get('/save', function(req, res) {
-	imdb.readDir(process.env.HOME + '/movies', function(err, film) {
-		db.saveToDB(film);
-		//console.log(film);
+	walker.readDir(process.env.HOME + '/movies', function(err, film) {
+		for(var i = 0; i < film.files.length; i++) {
+			film.files[i] = u.flatten(film.files[i]);
+			imdb.getByTitle(film.names[i], film.files[i], function(err, film)  {
+				res.send("Data saved!!");
+               db.saveToDB(film);
+            });   
+		}
+	});
+});
+app.get('/series', function(req, res) {
+	walker.readDir(process.env.HOME + '/series', function(err, serie) {
+
+
+
+		for(var i = 0; i < serie.files.length; i++) {
+			serie.files[i] = u.flatten(serie.files[i]);
+			serie.files[i].sort(function (a, b) {
+        		return a.toLowerCase().localeCompare(b.toLowerCase());
+     		});
+			imdb.getByTitle(serie.names[i], serie.files[i], function(err, series)  {
+               res.send("Data saved!!");
+               db.saveToDB(series);
+            });   
+		}
+	});
+});
+
+app.get('/episodes', function(req, res) {
+	imdb.getEpisodes('How i met your mother', function(err, episodes) {
+
+		res.send(episodes);
 	});
 });
 
@@ -70,5 +102,3 @@ io.sockets.on('connection', function(socket) {
 		console.log("Socket disconnected");
 	});
 });
-
-

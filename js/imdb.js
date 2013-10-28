@@ -1,6 +1,8 @@
 var request = require('request'),
 	fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+    s = require('./sort'),
+    _ = require('underscore');
 
 var IMAGE_PATH = './public/pics/';
 var MOVIE_PATH = process.env.HOME + '/movies';
@@ -10,7 +12,7 @@ function downloadImage(data) {
     try {
         request(data.Poster).pipe(fs.createWriteStream(IMAGE_PATH + data.imdbID + '.png'));
         } catch(err) {
-        console.log(err);
+        console.log(err + " " + data.Title);
     }
 };
 
@@ -18,7 +20,6 @@ function imdbData(film, loc, callback) {
 	request('http://omdbapi.com/?t=' + film, function (error, response, body) {
 	    if (!error && response.statusCode == 200) {
 	      var parsed = JSON.parse(body);
-
             if(parsed.Error) {
                 request('http://omdbapi.com/?s=' + film, function(error, response, body) {
                     if(!error && response.statusCode == 200) {
@@ -29,7 +30,8 @@ function imdbData(film, loc, callback) {
                             request('http://omdbapi.com/?i=' + parse.Search[0].imdbID, function(error, response,body) {
                                 var data = JSON.parse(body);
                                 downloadImage(data);
-                                callback(null, data, loc);
+                                data.loc = loc;
+                                callback(null, data);
                             });
                      }
                     }else {
@@ -38,7 +40,8 @@ function imdbData(film, loc, callback) {
                 });
             } else {
                 downloadImage(parsed);
-		        callback(null, parsed, loc);
+                parsed.loc = loc;
+		        callback(null, parsed);
             }
 	    } else {
 		callback(error);
@@ -46,59 +49,79 @@ function imdbData(film, loc, callback) {
 	});
 };
 
-function readDir(start, callback) {
-    // Use lstat to resolve symlink if we are passed a symlink
-    fs.lstat(start, function(err, stat) {
-        if(err) {
-            return callback(err);
-        }
-        var found = {dirs: [], files: [], name: []},
-            total = 0,
-            processed = 0;
-        function isDir(abspath) {
-            fs.stat(abspath, function(err, stat) {
-                if(stat.isDirectory()) {
-                    // If we found a directory, recurse!
-                    readDir(abspath, function(err, data) {
-                        found.dirs[processed] = abspath;
-                        found.files[processed] = data.files;
-                        if(++processed == total) { 
-                            
-	                        for (var i = 0; i < found.dirs.length; i++) {
-	                          	found.name[i] = found.dirs[i].replace(/\.[^\.]*(?:hdtv|x264)[^\.]*/ig,"").replace(/\.[^\.]*$/,"").replace(/\./g," ").replace(/^(.*[\\\/])/, "");
-	                           	imdbData(found.name[i],found.files[i], function(err, film, loc)  {
-	                          		film.loc = loc;
-	                           		callback(null, film);
-								});                                  
-	                        }   
-                        }
+
+function getByTitle(film, files, callback) {
+    request('http://omdbapi.com/?t=' + film, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var parsed = JSON.parse(body);
+
+            if(parsed.Error) {
+                getBySearch(film, files, function(err, data) {
+                    callback(null, data);
+                });
+            } else {
+                if(parsed.Type == "series") {
+                    getEpisodes(parsed, function(err, data) {
+                        parsed.Episodes = data;
+                        downloadImage(parsed);
+                        parsed.files = files;
+                        callback(null, parsed);
                     });
                 } else {
-                    found.files.push(abspath);
-                    if(++processed == total) {
-                        callback(null, found);
-                    }
+                    downloadImage(parsed);
+                    parsed.files = files;
+                    callback(null, parsed);
                 }
-            });
-        }
-        // Read through all the files in this directory
-        if(stat.isDirectory()) {
-            fs.readdir(start, function (err, files) {
-                total = files.length;
-                if(total == 0)
-                {
-                    callback(null, found);
-                } else {
-                    for(var x = 0, l = files.length; x < l; x++) {
-                        isDir(path.join(start, files[x]));
-                    }
-                }
-            });
+            }
         } else {
-            return callback(new Error("path: " + start + " is not a directory"));
+            callback(error);
         }
     });
 };
- 
-exports.readDir = readDir;
+
+function getBySearch(film, files, callback) {
+    request('http://omdbapi.com/?s=' + film, function(error, response, body) {
+        if(!error && response.statusCode == 200) {
+            var parse = JSON.parse(body);             
+            if (parse.Error) {
+                console.log("error:" + film);
+            } else {
+                request('http://omdbapi.com/?i=' + parse.Search[0].imdbID, function(error, response,body) {
+                    var data = JSON.parse(body);
+                    downloadImage(data);
+                    data.files = files;
+                    callback(null, data);
+                });
+            }
+        } else {
+            callback(error);
+        } 
+    });
+};
+
+function getEpisodes(series, callback) {
+    request('http://imdbapi.poromenos.org/js/?name=' + series.Title + "&year=" + series.Year, function (error, response, body) {
+        var data = JSON.parse(body);
+        var Title = Object.keys(data);
+        data[Title].episodes.sort(s.dynamicSortMultiple("season", "number"));
+
+        var season = 0;
+        var Episodes = new Array(new Array());
+
+        data[Title].episodes.forEach(function(episodes) {
+             if(season < episodes.season) {
+                 season++;
+                 Episodes[season] = new Array();
+             }
+            Episodes[season][episodes.number] = episodes.name;
+        });
+
+        callback(null, Episodes);
+    });
+};
+
+exports.getEpisodes = getEpisodes;
+
+exports.getByTitle = getByTitle;
+exports.imdbData = imdbData;
 exports.downloadImage = downloadImage;

@@ -1,5 +1,4 @@
 <a href="#movie/<%= id %>" class="thumbnail plain" style="text-align: center; ">
     <img src="<%= value.Poster === 'N/A' ? 'pics/generic.png' : 'pics/' + value.imdbID + '.png' %>" height="150" width="125" alt="">
     <h5><%= value.Title %></h5>
-    <i class="icon-globe"></i> Rating, <%= value.imdbRating %>
 </a>

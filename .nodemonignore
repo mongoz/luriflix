@@ -1,0 +1,7 @@
+/vendor/*
+/public/*
+./README.md 
+*.css
+omxcontrol
+__sublime_sftp_offset
+

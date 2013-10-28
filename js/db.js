@@ -4,11 +4,25 @@ var nano = require('nano')('http://username:password@localhost:5984'),
 	request = require('request');
 
 exports.findAll = function(req, res) {
-	db.view('videos', 'films', function(err, body) {
-		if (!err) {
-			res.send(body.rows);
-		}
-	});
+	var name = req.query['name'];
+
+	if (name) {
+		db.view('videos', 'all', { startkey: name, endkey: name + "\u9999"}, function(err, body) {
+			if(!err) {
+				res.send(body.rows);
+			} else {
+				console.log(err);
+			}
+		});
+
+	} else {
+
+		db.view('videos', 'all', function(err, body) {
+			if (!err) {
+				res.send(body.rows);
+			}
+		});
+	}
 }
 
 exports.findById = function(req, res) {

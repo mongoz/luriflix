@@ -11,7 +11,7 @@ window.EditMovieView = Backbone.View.extend({
 
     events: {
     	"change"		 : "change",
-        "click .save"  	 : "beforeSave",
+        "click .save"  	 : "saveMovie",
         "click .delete"  : "deleteMovie",
         "drop #picture"  : "drop"
     },
@@ -27,24 +27,6 @@ window.EditMovieView = Backbone.View.extend({
         change[target.name] = target.value;
         this.model.set(change);
 
-        // Run validation rule (if any) on changed item
-        var check = this.model.validateItem(target.id);
-        if (check.isValid === false) {
-            utils.addValidationError(target.id, check.message);
-        } else {
-            utils.removeValidationError(target.id);
-        }
-    },
-
-    beforeSave: function () {
-        var self = this;
-        var check = this.model.validateAll();
-        if (check.isValid === false) {
-            utils.displayValidationErrors(check.messages);
-            return false;
-        }
-        this.saveMovie();
-        return false;
     },
 
     saveMovie: function () {

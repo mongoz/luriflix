@@ -7,8 +7,8 @@ window.MovieListView = Backbone.View.extend({
     render: function () {
         var movies = this.model.models;
         var len = movies.length;
-        var startPos = (this.options.page - 1) * 8;
-        var endPos = Math.min(startPos + 8, len);
+        var startPos = (this.options.page - 1) * 12;
+        var endPos = Math.min(startPos + 12, len);
 
         $(this.el).html('<ul class="thumbnails"></ul>');
 

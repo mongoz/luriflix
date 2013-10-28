@@ -2,7 +2,7 @@ var AppRouter = Backbone.Router.extend({
 
     routes: {
         ""                  : "home",
-        "movies" : "list",
+        "movies"            : "list",
         "movies/page/:page"	: "list",
         "movie/:id"         : "movieDetails",
         "edit/:id"          : "edit",
@@ -11,7 +11,11 @@ var AppRouter = Backbone.Router.extend({
 
     initialize: function () {
         this.headerView = new HeaderView();
-        $('.header').html(this.headerView.el);
+        $('.header').html(this.headerView.render().el);
+
+        $('body').click(function () {
+            $('.dropdown').removeClass("open");
+        });
     },
 
     home: function (id) {
@@ -54,10 +58,11 @@ var AppRouter = Backbone.Router.extend({
         $('#content').html(this.aboutView.el);
         this.headerView.selectMenuItem('about-menu');
     }
-
 });
 
-utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView', 'EditMovieView'], function() {
+utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView', 'EditMovieView', 'SearchListView', 'SeasonsView', 'EpisodeView'], function() {
+ $(function () {
     app = new AppRouter();
     Backbone.history.start();
+});
 });
