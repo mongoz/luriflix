@@ -12,7 +12,7 @@ window.EpisodeView = Backbone.View.extend({
 
         var season = 0;
         var firstSeason = true;
-        var defaults;
+        var s;
 
          for (var i = 0; i < data.files.length; i++) {
             var filter = data.files[i].match(/S0*(\d+)E0*(\d+)/i, "$1", "$2");
@@ -21,16 +21,16 @@ window.EpisodeView = Backbone.View.extend({
                    season = filter[1];
                    if(firstSeason) {
                         $(this.el).html(new SeasonsView({model: season}).render().el);
-                        defaults = season;
+                        s = season;
                    }
-                  $('.dropdown-menu', this.el).append("<li>" + season + "</li>");
+                  $('.dropdown-menu', this.el).append("<li><a tabindex='-1'>" + season + "</a></li>");
                     this.found[season] = new Array();
                     firstSeason = false;
                 }
                 this.found[season][filter[2]] = data.files[i];
             }
          }
-        this.renderEpisodes(defaults);
+        this.renderEpisodes(s);
         return this;
     },
 
@@ -42,8 +42,8 @@ window.EpisodeView = Backbone.View.extend({
      play: function(e) {
         var season = parseInt($(".btn:eq(2)").text());
         var episode = parseInt($(e.currentTarget).text());        
-        console.log(this.found[season][episode]);
-        //socket.emit('play', data.files[num[0] - 1]);
+        socket.emit('play', this.found[season][episode]);
+        socket.emit('info', this.found[season][episode]);
      },
 
      selectedSeason: function(e) {

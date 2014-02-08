@@ -1,6 +1,6 @@
 var express = require('express'),
 	path = require('path'),
-	omx = require('omxcontrol'),
+	omx = require('./js/omx'),
 	db = require('./js/db'),
 	imdb = require('./js/imdb'),
 	http = require('http'),
@@ -49,18 +49,18 @@ app.get('/save', function(req, res) {
 	walker.readDir(process.env.HOME + '/movies', function(err, film) {
 		for(var i = 0; i < film.files.length; i++) {
 			film.files[i] = u.flatten(film.files[i]);
+			film.files[i].sort(function (a, b) {
+        		return a.toLowerCase().localeCompare(b.toLowerCase());
+     		});
 			imdb.getByTitle(film.names[i], film.files[i], function(err, film)  {
 				res.send("Data saved!!");
-               db.saveToDB(film);
+               	db.saveToDB(film);
             });   
 		}
 	});
 });
 app.get('/series', function(req, res) {
 	walker.readDir(process.env.HOME + '/series', function(err, serie) {
-
-
-
 		for(var i = 0; i < serie.files.length; i++) {
 			serie.files[i] = u.flatten(serie.files[i]);
 			serie.files[i].sort(function (a, b) {
@@ -74,18 +74,11 @@ app.get('/series', function(req, res) {
 	});
 });
 
-app.get('/episodes', function(req, res) {
-	imdb.getEpisodes('How i met your mother', function(err, episodes) {
-
-		res.send(episodes);
-	});
-});
-
 io.sockets.on('connection', function(socket) {
 	
 	socket.on('play', function(data) {
-		console.log("start: " + data.Title);
-		omx.start(data.loc);
+		console.log("Playing... ");
+		omx.start(data);
 	});
 
 	socket.on('pause', function() {
@@ -95,10 +88,16 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('stop', function() {
 		console.log("stop");
-		omx.quit();
+		 omx.stop(function() {});
+	});
+
+	socket.on('info', function(data) {
+		omx.info(data, function(err, info) {
+			socket.emit("info", info)
+		});
 	});
 
 	socket.on('disconnect', function() {
-		console.log("Socket disconnected");
+		console.log("Client disconnected");
 	});
 });

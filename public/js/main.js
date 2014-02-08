@@ -60,9 +60,16 @@ var AppRouter = Backbone.Router.extend({
     }
 });
 
-utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView', 'EditMovieView', 'SearchListView', 'SeasonsView', 'EpisodeView'], function() {
- $(function () {
+var socket = io.connect();
+
+utils.loadTemplate(['HomeView', 'HeaderView', 'MovieView', 'MovieListItemView', 'AboutView', 'EditMovieView', 'SearchListView', 'SeasonsView', 'EpisodeView','MovieFileView','PlayController'], function() {
     app = new AppRouter();
     Backbone.history.start();
 });
-});
+
+socket.on('info', function (info) {
+    duration = info.match(/Duration: ([\d:]+)/, "$1");
+    runTime = utils.timespanMillis(duration[1]);
+    console.log(runTime);
+    $('.bar').animate({ width: "100%" }, runTime);
+});  

@@ -3,6 +3,8 @@ var nano = require('nano')('http://username:password@localhost:5984'),
 	db = nano.use(db_name),
 	request = require('request');
 
+var IMAGE_PATH = './public/pics/';
+
 exports.findAll = function(req, res) {
 	var name = req.query['name'];
 
@@ -34,12 +36,27 @@ exports.findById = function(req, res) {
 	});
 }
  
-exports.saveToDB = function (data) {
-	db.insert(data, function(err, body) {
+exports.saveToDB = function(data) {
+	db.view('videos', 'titles', { startkey: data.Title, endkey: data.Title + "\u9999"}, function(err, body) {
 		if(err) {
 			console.log(err);
+		} else if(body.rows.length === 0) {
+			db.insert(data, function(err, body) {
+				if(err) {
+					console.log(err);
+				} else {
+					console.log("Data added successfully!");
+				}
+			});
 		} else {
-			console.log("Data added successfully!");
+			data._rev = body.rows[0].value.rev;
+			 db.insert(data, body.rows[0].id, function(err, body) {
+			   	if(err) {
+		   			console.log("error: "+ err);
+		   		}  else {
+	           		console.log(body);
+	          	}
+			});
 		}
 	});
 }
@@ -51,7 +68,7 @@ exports.updateMovie = function(req, res) {
 
 	if(data.json) {
 		info = JSON.parse(data.json);
-		info.loc = data.loc;
+		info.files = data.files;
 
 		try {
         	request(info.Poster).pipe(fs.createWriteStream(IMAGE_PATH + info.imdbID + '.png'));
@@ -66,13 +83,13 @@ exports.updateMovie = function(req, res) {
 
 	db.get(id, function (error, existing) {	 	
 	  	if(!error) info._rev = existing._rev;	  	
-		  	db.insert(info, id, function(err, body) {
-		  		if(err) {
-		  			res.send("error: "+ err);
-		  		}  else {
-	               res.send(info);
-	            }
-		  	});
+		db.insert(info, id, function(err, body) {
+			if(err) {
+		  		res.send("error: "+ err);
+		  	}  else {
+	            res.send(info);
+	        }
+		});
 	});
 }
 
@@ -82,19 +99,18 @@ exports.deleteMovie = function(req, res) {
     console.log('Deleting Movie: ' + id);
 
     db.get(id, function(error, body) {
-    	if(!error) {
-    		console.log(body._rev);
-    	}
-
-	    db.destroy(id, body._rev, function(err, body) {
-			if (err) {
-	            res.send({'error':'An error has occurred - ' + err});
-	        } else {
-	            res.send(req.body);
-	        }
-    	});
+    	if(error) {
+    		console.log(error);
+    	} else {
+	    	db.destroy(id, body._rev, function(err, body) {
+				if (err) {
+	            	res.send({'error':'An error has occurred - ' + err});
+	        	} else {
+	            	res.send(req.body);
+	        	}
+    		});
+		}
     });
-
 }
 
 exports.delAll = function() {

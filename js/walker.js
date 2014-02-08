@@ -49,4 +49,8 @@ function readDir(start, callback) {
         }
     });
 };
+
+function pipeExists() {
+
+};
 exports.readDir = readDir;

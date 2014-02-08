@@ -100,9 +100,9 @@ function getBySearch(film, files, callback) {
 };
 
 function getEpisodes(series, callback) {
+   // console.log(series.Title);
     request('http://imdbapi.poromenos.org/js/?name=' + series.Title + "&year=" + series.Year, function (error, response, body) {
-        var data = JSON.parse(body);
-        var Title = Object.keys(data);
+    var Title = Object.keys(data);
         data[Title].episodes.sort(s.dynamicSortMultiple("season", "number"));
 
         var season = 0;

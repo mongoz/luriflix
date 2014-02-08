@@ -1,3 +1,4 @@
+--- All ----
 function(doc) {
 	if(doc._id && doc.Title)
 	 emit(doc.Title, doc);

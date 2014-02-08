@@ -1,39 +1,58 @@
 window.MovieView = Backbone.View.extend({
 
     initialize: function () {
+
         this.render();
     },
 
     render: function () {
 
-        data = _.clone(this.model.attributes); 
+        data = _.clone(this.model.attributes);
 
         $(this.el).html(this.template(data));
 
         if(data.Type == "series") {
-               $(this.el).append(new EpisodeView({model: this.model, el: this.$('.episodes')}).render());
+            $(this.el).append(new EpisodeView({model: this.model, el: this.$('.files')}));
+        } else {
+            $(this.el).append(new MovieFileView({model: this.model, el: this.$('.files')}));
         }
         return this;
     },
 
     events: {
-        "click .start"  : "startMovie",
-        "click .pause"  : "pauseMovie",
-        "click .stop"   : "stopMovie",
+        "click .player" : "showControls"
     },
 
-    startMovie: function () {
-        console.log("watch");
-         socket.emit('play', this.model);
+    showControls: function() {
+
+        $(".footer").html(new PlayController({model: this.model}).el);  
+    },
+});
+
+window.MovieFileView = Backbone.View.extend({
+
+    initialize: function() {
+        this.render();
     },
 
-    pauseMovie: function () {
-       console.log("pause");
-       socket.emit('pause');
+    render: function() {
+        data = _.clone(this.model.attributes); 
+
+        _.each(data.files, function(file, index) {
+            $(this.el).append(this.template({part: index + 1 }));
+        }, this);
+        return this;
     },
 
-    stopMovie: function () {
-       console.log("stop");
-       socket.emit('stop');
+    events: {
+        "click .player"  : "startMovie",
+        
+    },
+
+    startMovie: function (e) {
+        var part = $(e.currentTarget).text().replace(/[A-Za-z$-]/g, "");
+        console.log(data.files[part - 1]);
+        socket.emit('info', data.files[part - 1]);
+        socket.emit('play', data.files[part - 1]);
     },
 });

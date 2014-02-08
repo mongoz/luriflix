@@ -24,6 +24,7 @@ a.plain:hover {
 
 .player:hover {
     background-color: rgb(248, 248, 248);
+    color: rgb(255, 0, 10)
 }
 
 .status-bar {
@@ -35,11 +36,7 @@ a.plain:hover {
     margin-right: 12px;
 }
 
-.episodes {
-    margin-right: 20px;
-}
-
-.episodes ul {
+.files li {
     list-style-type: none;
 }
 
@@ -138,3 +135,32 @@ legend {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+.controller li {
+    list-style-type: none;
+}
+
+
+.play{left: 0px; width: 55px; height: 50px;}
+.play{background:url('img/controls.png') -8px -6px;}
+
+.pause{left: 0px; width: 55px; height: 50px;}
+.pause{background:url('img/controls.png') -70px -6px;}
+
+.stop{left: 0px; width: 55px; height: 50px;}
+.stop{background:url('img/controls.png') -133px -6px;}
+
+.forward{left: 0px; width: 55px; height: 50px;}
+.forward{background:url('img/controls.png') -133px -180px;}
+
+.backward{left: 0px; width: 55px; height: 50px;}
+.backward{background:url('img/controls.png') -196px -180px;}
+
+.volym_up{left: 0px; width: 55px; height: 50px;}
+.volym_up{background:url('img/controls.png') -70px -357px;}
+
+.volym_down{left: 0px; width: 55px; height: 50px;}
+.volym_down{background:url('img/controls.png') -8px -357px;}
+
+.volume{left: 0px; width: 55px; height: 50px;}
+.volume{background:url('img/controls.png') -133px -357px;}

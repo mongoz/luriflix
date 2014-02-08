@@ -2,12 +2,12 @@ Client
 	✓ Search
 	- Genre
 	- Update movie list
-	- series tab
+	✓ series tab
 
 
 Server
 	✓ Start omxplayer process.
 	✓ Series
 	- Create views for searching
-	- seperate movies and series
+	X seperate movies and series (obsolete)
 	- not add if exist
