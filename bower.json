@@ -1,0 +1,24 @@
+{
+  "name": "luriflix",
+  "description": "luriflix streaming",
+  "main": "",
+  "authors": [
+    "per <perulken@gmail.com>"
+  ],
+  "license": "BSD-2-Clause",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.6",
+    "angular-route": "~1.4.8",
+    "ng-repeat-owl-carousel": "*"
+  }
+}

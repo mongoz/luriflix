@@ -1,0 +1,181 @@
+<div id="about">
+  <!-- Navigation -->
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <img class="navbar-brand" src="images/fox-logo-white.png">
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                <li class="dropdown">
+                  <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Browse <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">Separated link</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+                 <li><a href="#">Temp</a></li>
+              </ul>
+
+              <ul class="nav navbar-nav navbar-right">
+              <form class="navbar-form navbar-left" role="search">
+               <div class="inner-addon right-addon">
+                    <i class="glyphicon glyphicon-search"></i>
+                    <input type="text" class="form-control" placeholder="Search"/>
+                </div>
+              </form>
+                <li><a href="#/profile"> <i class="glyphicon glyphicon-user"></i> {{loggeduser.firstname}} </a></li>
+              </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+ 
+    <a class="btn btn-circle"><i back class="fa fa-angle-double-left fa-6"></i></a>
+    <div class="container">
+        <style scoped>
+     .backdrop:before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 900px;
+        z-index: -1;
+        background: url(../images/AqxuecX.jpg) center center no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        background-size: cover;
+        -o-background-size: cover;
+        opacity: .2;
+        border-radius: 50%;
+        box-shadow: inset 10px 24px 40px 0px #3c3c3c, 
+        inset -10px -24px 40px 0px #3c3c3c, 
+        inset 20px -10px 40px 0px #3c3c3c, 
+        inset -20px 10px 40px 0px #3c3c3c;
+    }
+    </style>
+        <div class="backdrop">
+            <h1 class="section-title">{{actor.name}}</h1>
+            <div class="row">
+                <div class="col-lg-6">
+                  	<div class="actor-avatar">
+                        <div class="actor-avatar-img">
+                            <img src="https://image.tmdb.org/t/p/w396{{actor.profile_path}}" alt="">
+                        </div><!-- /.movie-avatar-img --> 
+                  	</div><!-- /.movie-avatar --> 
+                </div><!-- /.col-lg-6 -->
+                <div class="col-lg-6">  
+	                <h2>{{actor.name}}</h2>
+	                <TABLE class="text-dark">
+	                    <TR>
+	                    	<TD>Birthday</TD>  
+	                    	<TD>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</TD>
+	                    	<TD>{{actor.birthday | date:'dd MMMM yyyy'}}</TD>
+	                    </TR>
+	                    <TR>
+	                    	<TD>Birth place</TD>
+	                    	<TD>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</TD>
+	                    	<TD>{{actor.place_of_birth}}</TD>
+	                    </TR>
+	                    <TR>
+	                     	<TD>Age</TD>
+	                     	<TD>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</TD>
+	                     	<TD><span class="detailed-text">{{ calculateAge(actor.birthday) }}</span></TD>
+	                    </TR>         
+	                </TABLE>
+	                <br>
+	                <p>{{actor.biography}}
+	                <br>
+                </div><!-- /.col-lg-6 -->
+            </div><!-- /.row -->
+        </div>   
+    </div><!-- /.container --> 
+</div><!-- /.about -->
+ <!-- episode-Sub Section -->
+    <div id="about-sub">              
+        <div class="container">       
+            <div class="row">
+                <div class="col-lg-9 col-md-9">
+					
+					<div class="credits" ng-show="showActor">
+	                    <h2>Actor</h2>
+						<div class="media" ng-repeat="cast in credits.cast | orderBy:'release_date':true | limitTo: listLimit">
+						  	<div class="media-left">
+						    	<a href="#">
+						      		<img class="media-object" src="https://image.tmdb.org/t/p/w396{{cast.poster_path}}" onerror="if (this.src != 'images/fox-logo-white.png') this.src = 'images/fox-logo-white.png';" width="50px" alt="...">
+						    	</a>
+						  	</div>
+						  	<div class="media-body">
+						   		<h4 class="media-heading">{{cast.original_title}}</h4>
+						    	<h5 class="media-subheading">{{cast.character}}</h5>
+						  	</div>
+						  	<div class="media-right">
+						  		 {{cast.release_date | date:'yyyy'}}
+						  	</div>
+						</div>
+						<button class="btn btn-primary" ng-click="showHideList(listLimit)">{{buttonText}}</button>
+					</div>
+
+					<div class="credits" ng-show="!showActor">
+						<h2>Producer</h2>
+						<div class="media" ng-repeat="crew in credits.crew | orderBy:'release_date':true | limitTo: listLimit ">
+						  	<div class="media-left">
+						    	<a href="#">
+						      		<img class="media-object"src="https://image.tmdb.org/t/p/w396{{crew.poster_path}}" onerror="if (this.src != 'images/fox-logo-white.png') this.src = 'images/fox-logo-white.png';" width="50px" alt="...">
+						    	</a>
+						  	</div>
+						  	<div class="media-body">
+						   		<h4 class="media-heading">{{crew.original_title}}</h4>
+						    	<h5 class="media-subheading">{{crew.job}}</h5>
+						  	</div>
+						  	<div class="media-right">
+						  		{{crew.release_date | date:'yyyy'}}
+						  	</div>
+						</div>
+						<button ng-click="showHideList(listLimit)">{{buttonText}}</button>
+					</div>
+                </div><!-- /.col-lg-9 -->
+                <div class="col-lg-3 col-md-3" id="counters">
+                    <ul class="counters">
+                        <li ng-click="showActor = true">
+                            <span id="counter">{{credits.cast.length}}</span>
+                            <h5>Actor</h5>
+                        </li>
+                        <li ng-click="showActor = false">
+                            <span id="counter">{{credits.crew.length}}</span>
+                            <h5>Producer </h5>
+                        </li>                        
+                    </ul>
+                </div><!-- /.col-lg-3 -->
+            </div><!-- /.row -->
+        </div><!-- /.container --> 
+    </div><!-- /#about-sub -->
+<!-- Gallery Section -->
+<section id="gallery">
+    <div class="section-wrapper">
+    <h1 class="section-title">Gallery</h1>
+            <div ng-controller="ActorCarouselController as aCtrl">
+                    <div id="owl-gallery" class="owl-carousel owl-theme">
+                        <div class="item" ng-repeat="image in images" ng-repeat-owl-carousel carousel-init="aCtrl.carouselInitializer">
+							<div class="item">
+								<a class="popup" href="https://image.tmdb.org/t/p/w396{{image.file_path}}" gallery>
+									<img src="https://image.tmdb.org/t/p/w396{{image.file_path}}">
+								</a>
+							</div>               
+                        </div><!-- /.item -->
+                    </div>
+                </div>
+    </div>
+</section><!-- /#gallery -->   
